@@ -1,53 +1,60 @@
 import pytest
-class Product:
-    def __init__(self, name: str, description: str, price: float, quantity: int):
-        self.name = name
-        self.description = description
-        self.price = price
-        self.quantity = quantity
 
-class Category:
-    category_count = 0  # Атрибут класса для подсчета категорий
-    product_count = 0    # Атрибут класса для подсчета товаров
+from src.product_and_category import Category, Product
 
-    def __init__(self, name: str, description: str, products: list):
-        self.name = name
-        self.description = description
-        self.products = products  # список объектов Product
 
-        # Обновляем счетчики при создании нового объекта
-        Category.category_count += 1
-        Category.product_count += len(products)
+@pytest.fixture(autouse=True)
+def reset_counters() -> None:
+    # Перед каждым тестом сбрасываем счетчики
+    Category.category_count = 0
+    Category.product_count = 0
 
-# Фикстуры для тестирования
-@pytest.fixture
-def sample_product():
-    return Product("Книга", "Учебник по программированию", 1500.50, 10)
 
 @pytest.fixture
-def sample_category():
-    product1 = Product("Книга", "Учебник по программированию", 1500.50, 10)
-    product2 = Product("Ручка", "Гелевая ручка", 50.75, 100)
-    return Category("Канцтовары", "Все для учебы и работы", [product1, product2])
+def product() -> Product:
+    return Product("Test Product", "Test Description", 99.99, 10)
 
-def test_product_initialization(sample_product):
-    assert sample_product.name == "Книга"
-    assert sample_product.description == "Учебник по программированию"
-    assert sample_product.price == 1500.50
-    assert sample_product.quantity == 10
 
-def test_category_initialization(sample_category):
-    assert sample_category.name == "Канцтовары"
-    assert sample_category.description == "Все для учебы и работы"
-    assert len(sample_category.products) == 2
+@pytest.fixture
+def multiple_products() -> list:
+    p1 = Product("Product 1", "Desc 1", 50.0, 5)
+    p2 = Product("Product 2", "Desc 2", 150.0, 3)
+    return [p1, p2]
 
-def test_counts_after_creation():
-    # Перед созданием новых объектов
-    initial_categories = Category.category_count
-    initial_products = Category.product_count
 
-    p1 = Product("Тетрадь", "Тетрадь в клетку", 30.0, 50)
-    c1 = Category("Канцтовары", "Все для учебы", [p1])
+def test_product_initialization(product: Product) -> None:
+    assert product.name == "Test Product"
+    assert product.description == "Test Description"
+    assert product.price == 99.99
+    assert product.quantity == 10
 
-    assert Category.category_count == initial_categories + 1
-    assert Category.product_count == initial_products + 1
+
+def test_category_initialization_single_product(product: Product) -> None:
+    category = Category("Test Category", "Test Category Description", [product])
+    assert category.name == "Test Category"
+    assert category.description == "Test Category Description"
+    assert len(category.products) == 1
+    assert category.products[0] == product
+    # Проверка счетчиков
+    assert Category.category_count == 1
+    assert Category.product_count == 1
+
+
+def test_category_initialization_multiple_products(multiple_products: list) -> None:
+    category = Category("Multiple Products", "Description", multiple_products)
+    assert len(category.products) == 2
+    assert all(p in category.products for p in multiple_products)
+    # Проверка счетчиков
+    assert Category.category_count == 1
+    assert Category.product_count == 2
+
+
+def test_counts_accumulate() -> None:
+    p1 = Product("P1", "D1", 10.0, 1)
+    p2 = Product("P2", "D2", 20.0, 2)
+    cat1 = Category("Cat1", "Desc1", [p1])
+    cat2 = Category("Cat2", "Desc2", [p2])
+    # После создания двух категорий
+    assert Category.category_count == 2
+    # Общее количество продуктов
+    assert Category.product_count == 2
