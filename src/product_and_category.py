@@ -2,68 +2,91 @@ class Product:
     def __init__(self, name: str, description: str, price: float, quantity: int):
         self.name = name
         self.description = description
-        self._price = price
+        self.__price = price  # приватный атрибут
         self.quantity = quantity
 
     @classmethod
     def new_product(cls, data: dict, existing_products: list = None):
+        """
+        Создает новый объект Product из словаря данных.
+        Если товар с таким именем уже есть, увеличивает его количество,
+        а при конфликте цен выбирает более высокую.
+        """
         existing_products = existing_products or []
         for prod in existing_products:
-            if prod.name == data.get('name'):
-                prod.quantity += data.get('quantity', 0)
-                if data.get('price') > prod._price:
-                    prod._price = data.get('price')
+            if prod.name == data.get("name"):
+                # Обновляем количество
+                prod.quantity += data.get("quantity", 0)
+                # Выбираем более высокую цену
+                if data.get("price", 0) > prod._price:
+                    prod._price = data.get("price")
                 return prod
+        # Создаем новый товар, если дубликат не найден
         return cls(
-            name=data.get('name'),
-            description=data.get('description'),
-            price=data.get('price'),
-            quantity=data.get('quantity')
+            name=data.get("name"),
+            description=data.get("description"),
+            price=data.get("price"),
+            quantity=data.get("quantity"),
         )
 
     @property
     def price(self):
-        return self._price
+        return self.__price
 
     @price.setter
     def price(self, value):
+        """
+        Устанавливает цену товара.
+        Если цена <= 0, выводит сообщение и не меняет цену.
+        В случае понижения цены, запрашивает подтверждение у пользователя.
+        """
         if value <= 0:
             print("Цена не должна быть нулевой или отрицательной")
         else:
-            if hasattr(self, '_price') and value < self._price:
+            # Проверка на понижение цены
+            if hasattr(self, "_price") and value < self.__price:
                 confirm = input(f"Вы хотите понизить цену с {self._price} до {value}. Подтвердите (y/n): ")
-                if confirm.lower() == 'y':
-                    self._price = value
+                if confirm.lower() == "y":
+                    self.__price = value
                 else:
                     print("Понижение цены отменено.")
             else:
-                self._price = value
+                self.__price = value
 
 
 class Category:
-    total_categories = 0
-    total_products = 0
+    category_count = 0
+    product_count = 0
 
     def __init__(self, name: str, description: str, products: list = None):
         self.name = name
         self.description = description
-        self.__products = products if products is not None else []
-        self.product_count = len(self.__products)  # добавляем атрибут для количества товаров
-        Category.total_categories += 1
-        Category.total_products += self.product_count
+        self.__products = products if products is not None else []  # приватный список товаров
+        self.product_count = len(self.__products)  # количество товаров в категории
+        Category.category_count += 1
+        Category.product_count += self.product_count
 
     def add_product(self, product):
+        """
+        Добавляет объект Product в категорию.
+        Обновляет счетчик товаров.
+        """
         if isinstance(product, Product):
             self.__products.append(product)
             self.product_count += 1
-            Category.total_products += 1
+            Category.product_count += 1
         else:
             raise TypeError("Можно добавлять только объекты класса Product")
 
-
     @property
     def products(self):
-        return "\n".join(
-            f"{prod.name}, {prod.price} руб. Остаток: {prod.quantity} шт."
-            for prod in self.__products
-        )
+        """
+        Возвращает строку со списком товаров в формате:
+        "Название, цена руб. Остаток: количество шт."
+        """
+        return "\n".join(f"{prod.name}, {prod.price} руб. Остаток: {prod.quantity} шт." for prod in self.__products)
+
+    @property
+    def products_list(self):
+        # возвращает список товаров
+        return self.__products
