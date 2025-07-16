@@ -2,16 +2,11 @@ class Product:
     def __init__(self, name: str, description: str, price: float, quantity: int):
         self.name = name
         self.description = description
-        self.__price = price  # приватный атрибут
+        self.__price = price  # приватный атрибут цены
         self.quantity = quantity
 
     @classmethod
     def new_product(cls, data: dict, existing_products: list = None):
-        """
-        Создает новый объект Product из словаря данных.
-        Если товар с таким именем уже есть, увеличивает его количество,
-        а при конфликте цен выбирает более высокую.
-        """
         existing_products = existing_products or []
         for prod in existing_products:
             if prod.name == data.get("name"):
@@ -21,7 +16,6 @@ class Product:
                 if data.get("price", 0) > prod._price:
                     prod._price = data.get("price")
                 return prod
-        # Создаем новый товар, если дубликат не найден
         return cls(
             name=data.get("name"),
             description=data.get("description"),
@@ -35,15 +29,9 @@ class Product:
 
     @price.setter
     def price(self, value):
-        """
-        Устанавливает цену товара.
-        Если цена <= 0, выводит сообщение и не меняет цену.
-        В случае понижения цены, запрашивает подтверждение у пользователя.
-        """
         if value <= 0:
             print("Цена не должна быть нулевой или отрицательной")
         else:
-            # Проверка на понижение цены
             if hasattr(self, "_price") and value < self.__price:
                 confirm = input(f"Вы хотите понизить цену с {self._price} до {value}. Подтвердите (y/n): ")
                 if confirm.lower() == "y":
@@ -53,6 +41,14 @@ class Product:
             else:
                 self.__price = value
 
+    def __str__(self):
+        return f"{self.name}, {self.__price} руб. Остаток: {self.quantity} шт."
+
+    def __add__(self, other):
+        if isinstance(other, Product):
+            return self.__price + other.__price
+        return NotImplemented
+
 
 class Category:
     category_count = 0
@@ -61,32 +57,23 @@ class Category:
     def __init__(self, name: str, description: str, products: list = None):
         self.name = name
         self.description = description
-        self.__products = products if products is not None else []  # приватный список товаров
-        self.product_count = len(self.__products)  # количество товаров в категории
+        self.__products = products if products is not None else []
+        self.product_count = sum(prod.quantity for prod in self.__products)
         Category.category_count += 1
         Category.product_count += self.product_count
 
     def add_product(self, product):
-        """
-        Добавляет объект Product в категорию.
-        Обновляет счетчик товаров.
-        """
         if isinstance(product, Product):
             self.__products.append(product)
-            self.product_count += 1
+            self.product_count += 1  # увеличиваем на 1
             Category.product_count += 1
         else:
             raise TypeError("Можно добавлять только объекты класса Product")
 
     @property
     def products(self):
-        """
-        Возвращает строку со списком товаров в формате:
-        "Название, цена руб. Остаток: количество шт."
-        """
         return "\n".join(f"{prod.name}, {prod.price} руб. Остаток: {prod.quantity} шт." for prod in self.__products)
 
-    @property
-    def products_list(self):
-        # возвращает список товаров
-        return self.__products
+    def __str__(self):
+        total_quantity = sum(prod.quantity for prod in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."

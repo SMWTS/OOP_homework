@@ -33,7 +33,7 @@ def test_category_initialization_single_product(product: Product) -> None:
     category = Category("Test Category", "Test Category Description", [product])
     assert category.name == "Test Category"
     assert category.description == "Test Category Description"
-    assert len(category.products_list) == 1
+    assert len(category._Category__products) == 1
 
 
 def test_category_contains_products():
@@ -53,4 +53,4 @@ def test_counts_accumulate() -> None:
     # После создания двух категорий
     assert Category.category_count == 2
     # Общее количество продуктов
-    assert Category.product_count == 2
+    assert Category.product_count == 3
