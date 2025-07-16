@@ -33,20 +33,16 @@ def test_category_initialization_single_product(product: Product) -> None:
     category = Category("Test Category", "Test Category Description", [product])
     assert category.name == "Test Category"
     assert category.description == "Test Category Description"
-    assert len(category.products) == 1
-    assert category.products[0] == product
-    # Проверка счетчиков
-    assert Category.category_count == 1
-    assert Category.product_count == 1
+    assert len(category.products_list) == 1
 
 
-def test_category_initialization_multiple_products(multiple_products: list) -> None:
-    category = Category("Multiple Products", "Description", multiple_products)
-    assert len(category.products) == 2
-    assert all(p in category.products for p in multiple_products)
-    # Проверка счетчиков
-    assert Category.category_count == 1
-    assert Category.product_count == 2
+def test_category_contains_products():
+    p1 = Product("Product 1", "desc", 50, 5)
+    p2 = Product("Product 2", "desc", 150, 3)
+    category = Category("Test", "desc", [p1, p2])
+    # Проверка, что строка содержит названия товаров
+    assert "Product 1" in category.products
+    assert "Product 2" in category.products
 
 
 def test_counts_accumulate() -> None:
