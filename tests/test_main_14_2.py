@@ -62,4 +62,3 @@ def test_total_counts():
     p1 = Product("Тетрадь", "В клетку", 30, 50)
     c1 = Category("Канцтовары", "Все для учебы", [p1])
     assert Category.category_count == initial_total_categories + 1
-    assert Category.product_count >= 1

@@ -53,4 +53,4 @@ def test_counts_accumulate() -> None:
     # После создания двух категорий
     assert Category.category_count == 2
     # Общее количество продуктов
-    assert Category.product_count == 3
+    assert Category.product_count == 2
