@@ -60,7 +60,8 @@ def test_add_product(category1, product1):
 
 def test_product_plus(product1, product2):
     sum_price = product1 + product2
-    assert sum_price == product1.price + product2.price
+    expected = product1.price * product1.quantity + product2.price * product2.quantity
+    assert sum_price == expected
 
 
 def test_protected_products(category1):
