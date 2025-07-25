@@ -9,16 +9,16 @@ class Product:
     def new_product(cls, data: dict, existing_products: list = None):
         existing_products = existing_products or []
         for prod in existing_products:
-            if prod.name == data.get('name'):
-                prod.quantity += data.get('quantity', 0)
-                if data.get('price') > prod._price:
-                    prod._price = data.get('price')
+            if prod.name == data.get("name"):
+                prod.quantity += data.get("quantity", 0)
+                if data.get("price") > prod._price:
+                    prod._price = data.get("price")
                 return prod
         return cls(
-            name=data.get('name'),
-            description=data.get('description'),
-            price=data.get('price'),
-            quantity=data.get('quantity')
+            name=data.get("name"),
+            description=data.get("description"),
+            price=data.get("price"),
+            quantity=data.get("quantity"),
         )
 
     @property
@@ -30,9 +30,9 @@ class Product:
         if value <= 0:
             print("Цена не должна быть нулевой или отрицательной")
         else:
-            if hasattr(self, '_price') and value < self._price:
+            if hasattr(self, "_price") and value < self._price:
                 confirm = input(f"Вы хотите понизить цену с {self._price} до {value}. Подтвердите (y/n): ")
-                if confirm.lower() == 'y':
+                if confirm.lower() == "y":
                     self._price = value
                 else:
                     print("Понижение цены отменено.")
@@ -46,6 +46,7 @@ class Product:
         if isinstance(other, Product):
             return self.price * self.quantity + other.price * other.quantity
         return NotImplemented
+
 
 # Классы-наследники
 class Smartphone(Product):
@@ -64,15 +65,9 @@ class Smartphone(Product):
         # Можно выбрать более высокую цену
         new_price = max(self._price, other._price)
         return Smartphone(
-            self.name,
-            self.description,
-            new_price,
-            new_quantity,
-            self.efficiency,
-            self.model,
-            self.memory,
-            self.color
+            self.name, self.description, new_price, new_quantity, self.efficiency, self.model, self.memory, self.color
         )
+
 
 class LawnGrass(Product):
     def __init__(self, name, description, price, quantity, country, germination_period, color):
@@ -87,17 +82,14 @@ class LawnGrass(Product):
         new_quantity = self.quantity + other.quantity
         new_price = max(self._price, other._price)
         return LawnGrass(
-            self.name,
-            self.description,
-            new_price,
-            new_quantity,
-            self.country,
-            self.germination_period,
-            self.color
+            self.name, self.description, new_price, new_quantity, self.country, self.germination_period, self.color
         )
+
+
 def __add__(self, other):
     if type(self) != type(other):
         raise TypeError("Можно складывать только объекты одного типа")
+
 
 class Category:
     category_count = 0
@@ -122,10 +114,7 @@ class Category:
 
     @property
     def products(self):
-        return "\n".join(
-            f"{prod.name}, {prod.price} руб. Остаток: {prod.quantity} шт."
-            for prod in self.__products
-        )
+        return "\n".join(f"{prod.name}, {prod.price} руб. Остаток: {prod.quantity} шт." for prod in self.__products)
 
     def __str__(self):
         return f"Категория: {self.name}\nОписание: {self.description}\nТовары:\n{self.products}"
