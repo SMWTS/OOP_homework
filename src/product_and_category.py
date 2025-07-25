@@ -47,6 +47,58 @@ class Product:
             return self.price * self.quantity + other.price * other.quantity
         return NotImplemented
 
+# Классы-наследники
+class Smartphone(Product):
+    def __init__(self, name, description, price, quantity, efficiency, model, memory, color):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+    def __add__(self, other):
+        if type(self) != type(other):
+            raise TypeError("Можно складывать только объекты одного типа")
+        # Можно реализовать логику сложения, например, объединение количества
+        new_quantity = self.quantity + other.quantity
+        # Можно выбрать более высокую цену
+        new_price = max(self._price, other._price)
+        return Smartphone(
+            self.name,
+            self.description,
+            new_price,
+            new_quantity,
+            self.efficiency,
+            self.model,
+            self.memory,
+            self.color
+        )
+
+class LawnGrass(Product):
+    def __init__(self, name, description, price, quantity, country, germination_period, color):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
+
+    def __add__(self, other):
+        if type(self) != type(other):
+            raise TypeError("Можно складывать только объекты одного типа")
+        new_quantity = self.quantity + other.quantity
+        new_price = max(self._price, other._price)
+        return LawnGrass(
+            self.name,
+            self.description,
+            new_price,
+            new_quantity,
+            self.country,
+            self.germination_period,
+            self.color
+        )
+def __add__(self, other):
+    if type(self) != type(other):
+        raise TypeError("Можно складывать только объекты одного типа")
+
 class Category:
     category_count = 0
     product_count = 0
@@ -60,12 +112,13 @@ class Category:
         Category.product_count += self.product_count
 
     def add_product(self, product):
-        if isinstance(product, Product):
-            self.__products.append(product)
-            self.product_count += 1
-            Category.product_count += 1
-        else:
-            raise TypeError("Можно добавлять только объекты класса Product")
+        if not isinstance(product, Product):
+            raise TypeError("Можно добавлять только объекты класса Product или его наследников")
+        # Проверка, что объект является наследником Product
+        if not issubclass(type(product), Product):
+            raise TypeError("Объект должен быть наследником класса Product")
+        self.__products.append(product)
+        self.product_count += 1
 
     @property
     def products(self):
