@@ -33,7 +33,7 @@ def test_category_initialization_single_product(product: Product) -> None:
     category = Category("Test Category", "Test Category Description", [product])
     assert category.name == "Test Category"
     assert category.description == "Test Category Description"
-    assert len(category.products_list) == 1
+    assert len(category._Category__products) == 1
 
 
 def test_category_contains_products():
