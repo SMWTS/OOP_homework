@@ -68,6 +68,7 @@ def test_protected_products(category1):
     with pytest.raises(AttributeError):
         _ = category1.__products
 
+
 def test_product_add_with_non_product():
     p = Product("Товар", "Описание", 100, 2)
     result = p.__add__(123)
