@@ -1,7 +1,29 @@
-class Product:
-    def __init__(self, name: str, description: str, price: float, quantity: int):
+from abc import ABC, abstractmethod
+
+
+# Абстрактный базовый класс для продуктов
+class BaseProduct(ABC):
+    @abstractmethod
+    def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
+
+    @abstractmethod
+    def __str__(self):
+        pass
+
+
+# Миксин для печати информации о создании объекта
+class CreationInfoMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print(f"Создан объект класса {self.__class__.__name__} с параметрами: {args}")
+
+
+# Класс Product, наследует от BaseProduct и миксина
+class Product(BaseProduct, CreationInfoMixin):
+    def __init__(self, name: str, description: str, price: float, quantity: int):
+        super().__init__(name, description)
         self._price = price
         self.quantity = quantity
 
@@ -48,7 +70,7 @@ class Product:
         return NotImplemented
 
 
-# Классы-наследники
+# Классы Smartphone и LawnGrass наследуют от Product
 class Smartphone(Product):
     def __init__(self, name, description, price, quantity, efficiency, model, memory, color):
         super().__init__(name, description, price, quantity)
@@ -60,10 +82,8 @@ class Smartphone(Product):
     def __add__(self, other):
         if type(self) != type(other):
             raise TypeError("Можно складывать только объекты одного типа")
-        # Можно реализовать логику сложения, например, объединение количества
         new_quantity = self.quantity + other.quantity
-        # Можно выбрать более высокую цену
-        new_price = max(self._price, other._price)
+        new_price = max(self._price, other.price)
         return Smartphone(
             self.name, self.description, new_price, new_quantity, self.efficiency, self.model, self.memory, self.color
         )
@@ -80,24 +100,28 @@ class LawnGrass(Product):
         if type(self) != type(other):
             raise TypeError("Можно складывать только объекты одного типа")
         new_quantity = self.quantity + other.quantity
-        new_price = max(self._price, other._price)
+        new_price = max(self._price, other.price)
         return LawnGrass(
             self.name, self.description, new_price, new_quantity, self.country, self.germination_period, self.color
         )
 
 
-def __add__(self, other):
-    if type(self) != type(other):
-        raise TypeError("Можно складывать только объекты одного типа")
+from abc import ABC, abstractmethod
 
 
-class Category:
+class BaseEntity(ABC):
+    @abstractmethod
+    def __init__(self, name: str, description: str):
+        self.name = name
+        self.description = description
+
+
+class Category(BaseEntity):
     category_count = 0
     product_count = 0
 
     def __init__(self, name: str, description: str, products: list = None):
-        self.name = name
-        self.description = description
+        super().__init__(name, description)
         self.__products = products if products is not None else []
         self.product_count = len(self.__products)
         Category.category_count += 1
@@ -106,9 +130,6 @@ class Category:
     def add_product(self, product):
         if not isinstance(product, Product):
             raise TypeError("Можно добавлять только объекты класса Product или его наследников")
-        # Проверка, что объект является наследником Product
-        if not issubclass(type(product), Product):
-            raise TypeError("Объект должен быть наследником класса Product")
         self.__products.append(product)
         self.product_count += 1
 
