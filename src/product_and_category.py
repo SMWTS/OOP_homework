@@ -24,6 +24,10 @@ class CreationInfoMixin:
 class Product(BaseProduct, CreationInfoMixin):
     def __init__(self, name: str, description: str, price: float, quantity: int):
         super().__init__(name, description)
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
+        self.name = name
+        self.description = description
         self._price = price
         self.quantity = quantity
 
@@ -127,6 +131,12 @@ class Category(BaseEntity):
         Category.category_count += 1
         Category.product_count += self.product_count
 
+    def middle_price(self):
+        if not self.__products:
+            return 0  # или None, если товаров нет
+        total_price = sum(prod.price for prod in self.__products)
+        return total_price / len(self.__products)
+
     def add_product(self, product):
         if not isinstance(product, Product):
             raise TypeError("Можно добавлять только объекты класса Product или его наследников")
@@ -139,3 +149,31 @@ class Category(BaseEntity):
 
     def __str__(self):
         return f"Категория: {self.name}\nОписание: {self.description}\nТовары:\n{self.products}"
+
+    def average_price(self):
+        try:
+            if not self.__products:
+                raise ZeroDivisionError("Нет товаров для подсчета средней цены")
+            total_price = sum(prod.price for prod in self.__products)
+            return total_price / len(self.__products)
+        except ZeroDivisionError:
+            return 0
+
+
+class ZeroQuantityError(Exception):
+    def __init__(self, message="Добавляемый товар имеет нулевое количество"):
+        super().__init__(message)
+
+
+# Метод добавления с проверкой
+def add_product_with_check(self, product):
+    try:
+        if product.quantity == 0:
+            raise ZeroQuantityError()
+        self.__products.append(product)
+        self.product_count += 1
+        print("Товар успешно добавлен.")
+    except ZeroQuantityError as e:
+        print(f"Ошибка: {e}")
+    finally:
+        print("Обработка добавления товара завершена.")
